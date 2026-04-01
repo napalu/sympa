@@ -1,5 +1,5 @@
 dist/
 *.p12
 *.p8
-sympa
+/sympa
 .idea/
