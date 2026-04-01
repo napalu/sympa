@@ -1,0 +1,66 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go vet ./...
+
+builds:
+  - main: ./cmd/sympa
+    binary: sympa
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}}
+
+signs:
+  - cmd: scripts/codesign.sh
+    args:
+      - "${artifact}"
+    artifacts: binary
+    output: false
+
+archives:
+  - formats: ['tar.gz']
+    name_template: "sympa_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+nfpms:
+  - package_name: sympa
+    homepage: "https://github.com/napalu/sympa"
+    maintainer: "napalu <napalu@users.noreply.github.com>"
+    description: "Symmetric-only password store wrapping age"
+    license: MIT
+    formats:
+      - deb
+      - rpm
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+
+brews:
+  - repository:
+      owner: napalu
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/napalu/sympa"
+    description: "Symmetric-only password store wrapping age"
+    license: "MIT"
+    install: |
+      bin.install "sympa"
+    test: |
+      system "#{bin}/sympa", "--version"
