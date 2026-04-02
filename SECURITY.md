@@ -35,15 +35,15 @@ sympa optionally supports combining a passphrase with a keyfile using HKDF-SHA25
 ### Construction
 
 ```
-derived = HKDF-SHA256(secret=passphrase, salt=keyfile, info="sympa-v1", len=32)
+derived = HKDF-SHA256(secret=passphrase, salt=keyfile_content, info="sympa-v1", len=32)
 age_passphrase = hex(derived)
 ```
 
-The keyfile provides 256 bits of entropy as the HKDF salt. The passphrase is the HKDF secret. The fixed info string `"sympa-v1"` acts as a domain separator. The 32-byte output is hex-encoded and used as the age passphrase, which then goes through age's own scrypt KDF.
+The keyfile content (variable length, minimum 32 bytes) is used as the HKDF salt. The passphrase is the HKDF secret. The fixed info string `"sympa-v1"` acts as a domain separator. The output is always 32 bytes, hex-encoded to 64 characters, and used as the age passphrase, which then goes through age's own scrypt KDF.
 
 ### What keyfile derivation protects against
 
-- **Weak passphrases**: even `password123` combined with a 256-bit random keyfile produces an unguessable derived key. The keyfile provides an entropy floor independent of passphrase quality.
+- **Weak passphrases**: even `password123` combined with a random keyfile (minimum 256-bit) produces a derived key resistant to brute-force. The keyfile provides an entropy floor independent of passphrase quality.
 - **Brute-force attacks**: an attacker with access to the encrypted files but not the keyfile cannot mount an offline dictionary attack against the passphrase alone.
 - **Passphrase reuse**: the same passphrase used with different keyfiles produces completely different derived keys.
 
@@ -142,4 +142,4 @@ Paths are URL-encoded, passphrases are base64-encoded. Connection timeout is 5 s
 
 ## Reporting Vulnerabilities
 
-If you find a security issue, please open an issue at https://github.com/napalu/sympa/issues.
+If you find a security issue, please report it privately via [GitHub Security Advisories](https://github.com/napalu/sympa/security/advisories/new). Do not open a public issue for security vulnerabilities.
