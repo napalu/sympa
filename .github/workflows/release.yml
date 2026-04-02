@@ -52,6 +52,9 @@ jobs:
 
           security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
 
+      - name: Debug available signing identities
+        run: security find-identity -v -p codesigning
+        
       - uses: goreleaser/goreleaser-action@v6
         with:
           version: '~> v2'
@@ -61,7 +64,20 @@ jobs:
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
           CODESIGN_IDENTIFIER: ${{ secrets.CODESIGN_IDENTIFIER }}
+          
 
+      - name: Verify macOS signatures
+        shell: bash
+        run: |
+          shopt -s nullglob
+          for bin in dist/*_darwin_*/*; do
+            if file "$bin" | grep -q "Mach-O"; then
+              echo "Checking $bin"
+              codesign -dv --verbose=4 "$bin" 2>&1 | egrep 'Signature=|Authority=|TeamIdentifier='
+              codesign --verify --deep --strict --verbose=2 "$bin"
+            fi
+          done
+                    
       - name: Cleanup keychain
         if: always()
         run: |

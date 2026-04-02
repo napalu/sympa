@@ -6,7 +6,8 @@ before:
     - go vet ./...
 
 builds:
-  - main: ./cmd/sympa
+  - id: sympa
+    main: ./cmd/sympa
     binary: sympa
     env:
       - CGO_ENABLED=0
@@ -19,37 +20,18 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}}
 
-signs:
-  - cmd: scripts/codesign.sh
-    args:
-      - "${artifact}"
-    artifacts: binary
-    output: false
+binary_signs:
+  - id: macos-sign
+    cmd: ./scripts/codesign.sh
+    ids:
+      - sympa
 
 archives:
   - formats: ['tar.gz']
     name_template: "sympa_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
-nfpms:
-  - package_name: sympa
-    homepage: "https://github.com/napalu/sympa"
-    maintainer: "napalu <napalu@users.noreply.github.com>"
-    description: "Symmetric-only password store wrapping age"
-    license: MIT
-    formats:
-      - deb
-      - rpm
-
 checksum:
   name_template: "checksums.txt"
-
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
-      - "^ci:"
 
 brews:
   - repository:
