@@ -10,6 +10,31 @@ floor independent of passphrase quality. This is a deliberate hedge against harv
 
 ## Install
 
+### Homebrew (macOS / Linux)
+
+```bash
+brew tap napalu/tap
+brew install sympa
+```
+
+### Debian / Ubuntu
+
+Download the `.deb` from the [latest release](https://github.com/napalu/sympa/releases/latest):
+
+```bash
+sudo dpkg -i sympa_*.deb
+```
+
+### Fedora / RHEL
+
+Download the `.rpm` from the [latest release](https://github.com/napalu/sympa/releases/latest):
+
+```bash
+sudo rpm -i sympa_*.rpm
+```
+
+### Go
+
 ```bash
 go install github.com/napalu/sympa/cmd/sympa@latest
 ```
