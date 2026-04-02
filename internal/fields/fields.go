@@ -18,7 +18,8 @@ type Secret struct {
 
 // Parse parses plaintext into a Secret.
 // Line 1 is the password. Subsequent lines in "key: value" format become fields.
-// Lines without a colon are ignored.
+// A field with value "|" starts a multiline block that continues until a blank
+// line, the next "key: value" line, or EOF. Lines without a colon are ignored.
 func Parse(plaintext []byte) *Secret {
 	lines := strings.Split(string(plaintext), "\n")
 	s := &Secret{}
@@ -27,9 +28,27 @@ func Parse(plaintext []byte) *Secret {
 		s.Password = lines[0]
 	}
 
-	for _, line := range lines[1:] {
-		key, value, ok := parseField(line)
-		if ok {
+	for i := 1; i < len(lines); i++ {
+		key, value, ok := parseField(lines[i])
+		if !ok {
+			continue
+		}
+		if value == "|" {
+			var block []string
+			i++
+			for i < len(lines) {
+				if lines[i] == "" {
+					break
+				}
+				if _, _, isField := parseField(lines[i]); isField {
+					i--
+					break
+				}
+				block = append(block, lines[i])
+				i++
+			}
+			s.Fields = append(s.Fields, Field{Key: key, Value: strings.Join(block, "\n")})
+		} else {
 			s.Fields = append(s.Fields, Field{Key: key, Value: value})
 		}
 	}

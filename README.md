@@ -153,6 +153,23 @@ recovery: EFGH-5678
 - Multiple lines with the same key are fine (e.g. recovery codes)
 - No fields at all? That's fine — everything still works
 
+### Multiline Fields
+
+Use `key: |` to store multiline content (SSH keys, certificates, notes). The value continues until a blank line, the next `key: value` line, or EOF:
+
+```
+mysecretpassword
+user: florent
+privkey: |
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUA...
+-----END OPENSSH PRIVATE KEY-----
+
+url: https://example.com
+```
+
+Retrieve with `sympa show -f privkey <name>` or copy with `-c`.
+
 ### Accessing Fields
 
 ```bash
@@ -160,6 +177,7 @@ sympa show email/gmail              # print everything
 sympa show -c email/gmail           # copy password to clipboard
 sympa show -f user email/gmail      # print just the username
 sympa show -c -f user email/gmail   # copy username to clipboard
+sympa show -f privkey ssh/server    # print multiline field
 ```
 
 ## TOTP

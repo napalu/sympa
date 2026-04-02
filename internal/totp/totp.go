@@ -18,8 +18,9 @@ const (
 // Generate computes a TOTP code from a base32-encoded secret key.
 // Uses RFC 6238 defaults: HMAC-SHA1, 6 digits, 30-second period.
 func Generate(secret string) (string, error) {
-	// Clean up the secret: remove spaces, uppercase
-	secret = strings.ToUpper(strings.ReplaceAll(secret, " ", ""))
+	// Clean up the secret: remove whitespace, uppercase
+	secret = strings.NewReplacer(" ", "", "\n", "", "\r", "", "\t", "").Replace(secret)
+	secret = strings.ToUpper(secret)
 
 	// Pad base32 if needed
 	if pad := len(secret) % 8; pad != 0 {
