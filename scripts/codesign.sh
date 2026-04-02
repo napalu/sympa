@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+artifact="${1:-}"
+if [[ -z "$artifact" || "$artifact" == "noop" ]]; then
+  exit 0
+fi
+
 : "${CODESIGN_IDENTITY:?CODESIGN_IDENTITY is required}"
 : "${CODESIGN_IDENTIFIER:=tech.heyworth.sympa}"
-
-artifact="$1"
 
 if file "$artifact" | grep -q "Mach-O"; then
   codesign --force \

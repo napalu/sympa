@@ -19,12 +19,9 @@ builds:
       - arm64
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.ShortCommit}}
-
-binary_signs:
-  - id: macos-sign
-    cmd: ./scripts/codesign.sh
-    ids:
-      - sympa
+    hooks:
+      post:
+        - cmd: ./scripts/codesign.sh {{ if eq .Os "darwin" }}{{ .Path }}{{ else }}noop{{ end }}
 
 archives:
   - formats: ['tar.gz']
