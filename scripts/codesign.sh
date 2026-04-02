@@ -10,7 +10,6 @@ if file "$artifact" | grep -q "Mach-O"; then
   codesign -s "$CODESIGN_IDENTITY" \
     --identifier "$CODESIGN_IDENTIFIER" \
     --options runtime \
-    --entitlements sympa.entitlements \
     --timestamp \
     "$artifact"
   echo "Signed: $artifact"
